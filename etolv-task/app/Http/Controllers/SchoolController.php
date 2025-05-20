@@ -8,77 +8,6 @@ use Illuminate\Http\Request;
 use App\Repositories\Interfaces\SchoolRepositoryInterface;
 
 
-// class SchoolController extends Controller
-// {
-//     protected $schoolRepo;
-//     public function __construct(SchoolRepositoryInterface $schoolRepo) {
-//         $this->schoolRepo = $schoolRepo;
-//     }
-    
-//     /**
-//      * Display a listing of the resource.
-//      */
-//     // Show All Schools
-//     public function index()
-//     {
-//         //
-//         // return $this->schoolRepo->all();
-//         // return School::all();
-//         return $this->SchoolService->getAll();
-
-//     }
-
-//     /**
-//      * Show the form for creating a new resource.
-//      */
-//     public function create()
-//     {
-//         //
-//     }
-
-//     // Add New School
-//     public function store(Request $request)
-//     {
-//         //
-//         $school = School::create($request->all());
-//         return response()->json($school, 201);
-//     }
-   
-//     // Show Only One School
-//     public function show(School $school)
-//     {
-//         //
-//         // return School::findOrFail($id);
-//         return $school;
-
-//     }
-
-//     /**
-//      * Show the form for editing the specified resource.
-//      */
-//     public function edit(School $school)
-//     {
-//         //
-//     }
-
-//     // Update School
-//     public function update(Request $request, School $school)
-//     {
-//         // $school = School::findOrFail($id);
-//         $school->update($request->all());
-//         return response()->json($school, 200);
-//     }
-
-//     // Delete School
-//     public function destroy(School $school)
-//     {
-//         $school->delete();
-//         return response()->json(null, 204);
-//     }
-
-// }namespace App\Http\Controllers;
-
-
 class SchoolController extends Controller
 {
     protected $schoolService;
@@ -90,7 +19,10 @@ class SchoolController extends Controller
 
     public function index()
     {
-        return response()->json($this->schoolService->getAll());
+        // return response()->json($this->schoolService->getAll());
+
+        $schools = $this->schoolService->getAll();
+        return view('schools.index', compact('schools'));
     }
 
     public function store(Request $request)
@@ -99,13 +31,19 @@ class SchoolController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        $school = $this->schoolService->create($validated);
-        return response()->json($school, 201);
+        // $school = $this->schoolService->create($validated);
+        // return response()->json($school, 201);
+
+        $this->schoolService->create($request->all());
+        return redirect()->route('schools.index')->with('success', 'School created successfully');
+        
     }
 
     public function show($id)
     {
-        return response()->json($this->schoolService->getById($id));
+        // return response()->json($this->schoolService->getById($id));
+        $school = $this->schoolService->getById($id);
+        return view('schools.show', compact('school'));
     }
 
     public function update(Request $request, $id)
@@ -114,13 +52,30 @@ class SchoolController extends Controller
             'name' => 'sometimes|required|string|max:255',
         ]);
 
-        $school = $this->schoolService->update($id, $validated);
-        return response()->json($school);
+        // $school = $this->schoolService->update($id, $validated);
+        // return response()->json($school);
+
+        $this->schoolService->update($id, $request->all());
+        return redirect()->route('schools.index')->with('success', 'School updated successfully');
     }
 
     public function destroy($id)
     {
+        // $this->schoolService->delete($id);
+        // return response()->json(null, 204);
         $this->schoolService->delete($id);
-        return response()->json(null, 204);
+        return redirect()->route('schools.index')->with('success', 'School deleted');
     }
+
+    public function create()
+    {
+        return view('schools.create');
+    }
+    public function edit($id)
+    {
+        $school = $this->schoolService->getById($id);
+        return view('schools.edit', compact('school'));
+    }
+
+
 }
